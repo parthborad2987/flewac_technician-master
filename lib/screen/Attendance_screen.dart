@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, non_constant_identifier_names, dead_code, unnecessary_null_comparison, prefer_typing_uninitialized_variables, avoid_print, unnecessary_string_interpolations, unused_local_variable, depend_on_referenced_packages
 
 import 'dart:convert';
-import 'package:datepicker_dropdown/datepicker_dropdown.dart';
 import 'package:flewac_technician/Drawer/responsive.dart';
 import 'package:flewac_technician/model/todayattendance_model.dart';
 import 'package:intl/intl.dart';
@@ -24,31 +23,38 @@ class AttendanceScreen extends StatefulWidget {
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  var getattendance;
   var dataa;
+  String value = 'January';
+  int currentmonth = 1;
+  var getAttendance;
   List<Attendance> attendance = [];
   List<ToDayAttendance> todayattendance = [];
-  var currentindex;
-  void mon;
+  List<String> month = [
+    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",
+  ];
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      getattendance = _MYATTENDANCE();
-    });
-    _months();
+    setupCurrentMonth();
+    bindMonth();
+    bindData();
   }
 
-  _months() {
-    var someDateTime = DateTime.now();
-    currentindex = someDateTime.month;
+  // Function to set current month
+  void setupCurrentMonth() {
+    // Get current month logic (1-based index)
+    currentmonth = DateTime.now().month;
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    getattendance;
+  // Function to bind month
+  void bindMonth() {
+    // Bind month logic
+  }
+
+  void bindData() {
+    // Bind data logic
+    getAttendance = _MYATTENDANCE();
   }
 
   Future<void> _refreshJob() async{
@@ -69,39 +75,58 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ),
       body: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            child: DropdownDatePicker(
-              inputDecoration: InputDecoration(
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10))), // optional
-              isDropdownHideUnderline: true,
-              isFormValidator: true, // optional
-              startYear: 2021, // optional
-              endYear: DateTime.now().year, // optional
-              width: 10, // optional
-              selectedDay: DateTime.now().day, // optional
-              selectedMonth: DateTime.now().month, // optional
-              selectedYear: DateTime.now().year, // optional
-              onChangedDay: (Day) async {
-                var sharedPref = await SharedPreferences.getInstance();
-                _MYATTENDANCE();
-               currentindex = DateTime.now().month;
-                  mon =  print('onChangedDay: $Day');
-                print(currentindex);
-              },
-              onChangedMonth: (month) => print('onChangedMonth: $month'),
-              onChangedYear: (Year) => print('onChangedYear: $Year'),
+          Padding(padding: const EdgeInsets.only(top: 20,right: 10,left: 10,),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.black,width: 4),
             ),
-          ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+              value: value,
+              isExpanded: true,
+              iconSize: 36,
+              icon: const Icon(Icons.arrow_drop_down,color: Colors.black,),
+              items: month.map(buildMenuItem).toList(),
+              onChanged: (value) {
+                this.value = value!;
+
+                if(this.value == "February") {
+                  currentmonth = 2;
+                }else if(this.value == "March") {
+                  currentmonth = 3;
+                }else if(this.value == "April") {
+                  currentmonth = 4;
+                }else if(this.value == "May") {
+                  currentmonth = 5;
+                }else if(this.value == "June") {
+                  currentmonth = 6;
+                } else if(this.value == "July") {
+                  currentmonth = 7;
+                } else if(this.value == "August") {
+                  currentmonth = 8;
+                } else if(this.value == "September") {
+                  currentmonth = 9;
+                } else if(this.value == "October") {
+                  currentmonth = 10;
+                } else if(this.value == "November") {
+                  currentmonth = 11;
+                } else if(this.value == "December") {
+                  currentmonth = 12;
+                } else {
+                  currentmonth = 1;
+                }
+                  _MYATTENDANCE();
+                },
+            ),
+          ),),),
+
           Container(
                 height: MediaQuery.of(context).size.height * 0.79,
                 padding: const EdgeInsets.only(top: 80,right: 10, left: 10,bottom: 80),
                 child : FutureBuilder(
-                  future: getattendance,
+                  future: getAttendance,
                   builder: (context, snapshot) {
                     if(snapshot.hasData) {
                       return RefreshIndicator(
@@ -268,6 +293,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   },
                 ),
               ),
+
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -275,7 +301,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 10, vertical: 12),
                 child: FutureBuilder(
-                 future: getattendance,
+                 future: getAttendance,
                    builder: (context, snapshot) {
                    if(snapshot.hasData) {
                        return Column(children: [
@@ -303,7 +329,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                    ],
                                  ),
                                ),
-                               const SizedBox(width: 20.0,),
+                               const SizedBox(width: 60.0,),
                                Column(
                                  mainAxisAlignment: MainAxisAlignment.center,
                                  crossAxisAlignment: CrossAxisAlignment.start,
@@ -511,13 +537,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
   }
 
-  Future _MYATTENDANCE() async {
+ Future _MYATTENDANCE() async {
     var sharedPref = await SharedPreferences.getInstance();
     var url = "https://crm.flewac.com/ANDROID/Tech/V1/Attendance/";
     var data = {
       "accessToken": sharedPref.getString('accessToken'),
-      "month": currentindex,
-    };
+      "month":currentmonth,
+    };print(currentmonth);
     var body = json.encode(data);
     var urlParse = Uri.parse(url);
     Response response = await http.post(
@@ -528,8 +554,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       },
     );
     dataa = jsonDecode(response.body);
-    //print(body);
-    //  print(dataa["today"]);
 
     if(dataa["status"] == "success") {
       for(Map<String,dynamic> data in dataa["data"]) {
@@ -553,4 +577,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["msg"])));
     }
   }
+
+ DropdownMenuItem<String> buildMenuItem(String item) =>
+    DropdownMenuItem(
+      value: item,
+      child: Text(item,style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+    );
 }

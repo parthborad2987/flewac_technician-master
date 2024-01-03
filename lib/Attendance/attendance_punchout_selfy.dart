@@ -1,5 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, avoid_print, unused_local_variable, prefer_interpolation_to_compose_strings, unnecessary_null_comparison, prefer_typing_uninitialized_variables
-import 'dart:io';
+// ignore_for_file: non_constant_identifier_names, avoid_print, unused_local_variable, prefer_interpolation_to_compose_strings, unnecessary_null_comparison, prefer_typing_uninitialized_variables, sized_box_for_whitespace
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
@@ -28,10 +27,6 @@ class _AttendancePunOutSelfyState extends State<AttendancePunOutSelfy> {
     _determinePosition();
     _controller = CameraController(widget.camera, ResolutionPreset.high);
     _initializeControllerFuture = _controller.initialize().then((_) {
-      if(mounted) {
-        setState(() {
-        });
-      }
     });
   }
 
@@ -71,7 +66,6 @@ class _AttendancePunOutSelfyState extends State<AttendancePunOutSelfy> {
 
   @override
   Widget build(BuildContext context) {
-    File fileData;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -88,7 +82,7 @@ class _AttendancePunOutSelfyState extends State<AttendancePunOutSelfy> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
+            return Container(width: MediaQuery.of(context).size.height * 0.99,child: CameraPreview(_controller),);
           } else {
             return const Center(child: CircularProgressIndicator());
           }

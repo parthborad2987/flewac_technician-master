@@ -1,5 +1,4 @@
 // ignore_for_file: non_constant_identifier_names, avoid_print, unused_local_variable, prefer_interpolation_to_compose_strings, unnecessary_null_comparison, prefer_typing_uninitialized_variables
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
@@ -27,7 +26,7 @@ class _PunchInState extends State<PunchIn> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-    _controller = CameraController(widget.camera, ResolutionPreset.medium);
+    _controller = CameraController(widget.camera, ResolutionPreset.veryHigh);
     _initializeControllerFuture = _controller.initialize().then((_) {
     });
   }
@@ -38,39 +37,36 @@ class _PunchInState extends State<PunchIn> {
     super.dispose();
   }
 
-  Future<void> _determinePosition() async {
+  Future<Position> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 
+    // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if(!serviceEnabled) {
-      Fluttertoast.showToast(msg: 'Please keep your Location on.');
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      return Future.error('Location services are disabled.');
     }
-    permission = await Geolocator.checkPermission();
-    if(permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
 
-      if(permission == LocationPermission.denied) {
-        Fluttertoast.showToast(msg: 'Location permission is denied');
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+
+        return Future.error('Location permissions are denied');
       }
     }
-    if(permission == LocationPermission.deniedForever) {
-      Fluttertoast.showToast(msg: 'Permission is denied forever');
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
     }
-    Position positioned = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    try{
-      List<Placemark> placemarks = await placemarkFromCoordinates(positioned.latitude, positioned.longitude);
-      Placemark place = placemarks[0];
-    } catch(e) {
-      print(e);
-    }
+
+    return await Geolocator.getCurrentPosition();
   }
 
   @override
   Widget build(BuildContext context) {
-    File fileData;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -86,7 +82,7 @@ class _PunchInState extends State<PunchIn> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
+            return Container(height: MediaQuery.of(context).size.height * 0.99,width: MediaQuery.of(context).size.width * 0.99,child: CameraPreview(_controller),);
           } else {
             return const Center(child: CircularProgressIndicator());
           }
