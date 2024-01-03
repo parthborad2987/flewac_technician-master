@@ -87,7 +87,7 @@ class _PunchOutState extends State<PunchOut> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
+            return Container(height: MediaQuery.of(context).size.height * 0.99,width: MediaQuery.of(context).size.width * 0.99,child: CameraPreview(_controller),);
           } else {
             return const Center(child: CircularProgressIndicator());
           }

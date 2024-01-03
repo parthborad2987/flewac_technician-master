@@ -1,6 +1,4 @@
 // ignore_for_file: non_constant_identifier_names, avoid_print, unused_local_variable, prefer_interpolation_to_compose_strings, unnecessary_null_comparison, prefer_typing_uninitialized_variables
-import 'dart:io';
-import 'package:flewac_technician/Drawer/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
@@ -29,10 +27,6 @@ class _AttendancePunchInSelfyState extends State<AttendancePunchInSelfy> {
     _determinePosition();
     _controller = CameraController(widget.camera, ResolutionPreset.high);
     _initializeControllerFuture = _controller.initialize().then((_) {
-      if(mounted) {
-        setState(() {
-        });
-      }
     });
   }
 
@@ -69,9 +63,9 @@ class _AttendancePunchInSelfyState extends State<AttendancePunchInSelfy> {
 
     return await Geolocator.getCurrentPosition();
   }
+
   @override
   Widget build(BuildContext context) {
-    File fileData;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -87,8 +81,7 @@ class _AttendancePunchInSelfyState extends State<AttendancePunchInSelfy> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if(Responsive.isTablet(context));
-            return CameraPreview(_controller,child: Container(height: 500,),);
+            return Container(width: MediaQuery.of(context).size.height * 0.9,child: CameraPreview(_controller),);
           } else {
             return const Center(child: CircularProgressIndicator());
           }
