@@ -3,13 +3,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flewac_technician/Drawer/responsive.dart';
-import 'package:flewac_technician/screen/Attendance_screen.dart';
+import 'package:flewac_technician/provider/attendance_punchinprovider..dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'dart:math' as Math;
 
 
@@ -72,6 +70,7 @@ class _AttendancePunchInState extends State<AttendancePunchIn> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<AttendancePunchInProvider>(context);
     final LatLng pGooglemapsource = LatLng(widget.position.latitude, widget.position.longitude);
 
     return  Scaffold(
@@ -109,7 +108,7 @@ class _AttendancePunchInState extends State<AttendancePunchIn> {
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      _attendancepunchin();
+                     provider.attendancepunchin(context, distance, status, widget.position.latitude, widget.position.longitude, _imageBase64);
                     });
                   },
                   style: ElevatedButton.styleFrom(primary: Colors.transparent,), child: const Text('Submit',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 25),),
@@ -122,7 +121,7 @@ class _AttendancePunchInState extends State<AttendancePunchIn> {
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      _attendancepunchin();
+                      provider.attendancepunchin(context, distance, status, widget.position.latitude, widget.position.longitude, _imageBase64);
                     });
                   },
                   style: ElevatedButton.styleFrom(primary: Colors.transparent,), child: const Text('Submit',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 25),),
@@ -132,43 +131,4 @@ class _AttendancePunchInState extends State<AttendancePunchIn> {
     );
   }
 
-  _attendancepunchin() async {
-    var sharedPref = await SharedPreferences.getInstance();
-    if(distance < 100) {
-      status = 1;
-      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('You are in a Office')));
-    } else {
-      status = 0;
-      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('You are in a not Office')));
-    }print(status.toString());
-
-    var url = "https://crm.flewac.com/ANDROID/Tech/V1/Attendance/";
-    var data = {
-      "in_loc": "${widget.position.latitude},${widget.position.longitude}",
-      "in_status": status.toString(),
-      "accessToken": sharedPref.getString('accessToken'),
-      "pic": _imageBase64,
-    };
-    var body = json.encode(data);
-    var urlParse = Uri.parse(url);
-    Response response = await http.post(
-      urlParse,
-      body: {
-        "type":"PUNCHIN",
-        "data":body
-      },
-    );
-    var dataa = jsonDecode(response.body);
-    print(body);
-    print(dataa["status"]);
-
-    if(dataa["status"] == "success") {
-      setState(() {
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>  const AttendanceScreen()),(route) => false);
-        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["status"])));
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["msg"])));
-    }
-  }
 }

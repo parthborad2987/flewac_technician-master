@@ -3,10 +3,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flewac_technician/jobs/job_review.dart';
+import 'package:flewac_technician/provider/Job_punchoutprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 import '../Drawer/app_drawer.dart';
@@ -36,6 +38,7 @@ class _SubmitFormState extends State<SubmitForm> {
 
     @override
     Widget build(BuildContext context) {
+      final provider = Provider.of<JobPunchOutProvider>(context);
     return Scaffold(
       drawer: const AppDrawer(),
       appBar: AppBar(
@@ -142,7 +145,12 @@ class _SubmitFormState extends State<SubmitForm> {
                    signatureController.toPngBytes().then((data) {
                      imageEncoded = base64.encode(data!);
                    });
-                   base64String();
+                   provider.base642String(context,
+                       _resolution.text.toString(),
+                       _Creview.text.toString(),
+                       widget._imageBase64,
+                       imageEncoded,
+                   );
                  },
                ),
              ),
@@ -155,43 +163,5 @@ class _SubmitFormState extends State<SubmitForm> {
       ),
      ),
     );
-  }
-
-  void base64String() async {
-    List<Location> locations = await locationFromAddress("Gronausestraat 710, Enschede");
-    var url = "https://crm.flewac.com/ANDROID/Tech/V1/Jobs/";
-    var sharedPref = await SharedPreferences.getInstance();
-
-    var data = {
-      "accessToken": sharedPref.getString('accessToken'),
-      "jobid": sharedPref.getString('jobid'),
-      "resolve": _resolution.text.toString(),
-      "review": _Creview.text.toString(),
-      "dlocation": "${locations.last.latitude.toString()},${locations.last.longitude.toString()}",
-      "dpic": widget._imageBase64.toString(),
-      "sign": imageEncoded.toString(),
-    };
-
-    var body = json.encode(data);
-    var urlParse = Uri.parse(url);
-    Response response = await http.post(
-      urlParse,
-      body: {
-        "type":"PUNCHOUT",
-        "data":body
-      },
-    );
-    var dataa = jsonDecode(response.body);
-    print(body);
-    print(dataa);
-    if(dataa["status"] == "success") {
-      setState(() {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => const JobReview()));
-        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["status"])));
-      });
-
-    } else {
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["msg"])));
-    }
   }
 }

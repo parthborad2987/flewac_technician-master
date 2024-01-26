@@ -1,11 +1,7 @@
 // ignore_for_file: avoid_unnecessary_containers, sized_box_for_whitespace, non_constant_identifier_names, use_build_context_synchronously, avoid_print, unrelated_type_equality_checks, prefer_typing_uninitialized_variables
-import 'dart:convert';
+import 'package:flewac_technician/provider/login_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../screen/job_screen.dart';
-import 'package:http/http.dart' as http;
-import 'reset_password.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
    const Login({super.key});
@@ -15,18 +11,10 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  var is_def;
   bool isLoading = false;
   final _formfiled = GlobalKey<FormState>();
   final TextEditingController _userName = TextEditingController();
   final TextEditingController _password = TextEditingController();
-
-  String? accessToken;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -37,6 +25,8 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<LoginProvider>(context);
+
     return Scaffold(
        backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
@@ -47,9 +37,9 @@ class _LoginState extends State<Login> {
           child: Center(
             child:SingleChildScrollView(
               child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                     logoWidget("assets/logo.png",),
+                 logoWidget("assets/logo.png",),
                   Container(
                     child: const Text(
                       'Sign in',
@@ -100,10 +90,12 @@ class _LoginState extends State<Login> {
                                       borderRadius: BorderRadius.circular(30),
                                       borderSide:  BorderSide(color: Colors.grey.shade100,),
                                     ),
-                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
                                       borderSide:   BorderSide(color: Colors.grey.shade300),
                                     ),
-                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
                                       borderSide:  BorderSide(color: Colors.grey.shade300, width: 2.0),
                                     ),
                                   ),
@@ -119,20 +111,28 @@ class _LoginState extends State<Login> {
                                    obscureText: true,
                                   controller: _password,
                                   keyboardType: TextInputType.text,
-                                  style:   const TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.black),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,color: Colors.black,
+                                  ),
                                   decoration: InputDecoration(
-                                    labelText: 'Password',labelStyle: const TextStyle(color: Colors.black),
+                                    labelText: 'Password',
+                                    labelStyle: const TextStyle(color: Colors.black),
                                     focusColor: Colors.black,
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30),
                                       borderSide:  BorderSide(color: Colors.grey.shade100,),
                                     ),
-                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
                                       borderSide:   BorderSide(color: Colors.grey.shade300),
                                     ),
-                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30),
-                                      borderSide:  BorderSide(color: Colors.grey.shade300, width: 2.0),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      borderSide:  BorderSide(color: Colors.grey.shade300,
+                                      width: 2.0,
                                     ),
+                                   ),
                                   ),
                                   validator: (value) {
                                     if(value!.isEmpty) {
@@ -154,28 +154,38 @@ class _LoginState extends State<Login> {
                                     ),
                                   ],
                                     color:  const Color.fromRGBO(0, 152, 218, 15),
-                                    borderRadius:  const BorderRadius.all(Radius.circular(30),),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(30),
+                                    ),
                                   ),
                                     child: TextButton(
-                                        child: isLoading ? const Row(mainAxisAlignment: MainAxisAlignment.center,
+                                     child: isLoading
+                                        ? const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           CircularProgressIndicator(color: Colors.white,),
                                           SizedBox(width: 24,),
                                           Text('Please Wait...',style: TextStyle(color: Colors.white)),
-                                        ],) : const Text('Sign in',
-                                          style: TextStyle(fontSize: 20, color: Colors.white),) ,
-                                        onPressed: () async {
+                                        ],)
+                                        : const Text('Sign in',
+                                         style: TextStyle(fontSize: 20, color: Colors.white),) ,
+                                         onPressed: () async {
                                           if(isLoading) return;
-                                          setState(() => isLoading = true);
                                           if(_formfiled.currentState!.validate()) {
-                                            registerUser();
-                                            setState(() {
-                                            });
+                                          setState(() => isLoading = true);
+                                           provider.registerUser(
+                                            context,
+                                            _userName.text.toString(),
+                                            _password.text.toString(),
+                                           );
                                           }
-                                        }),),
+                                        }
+                                       ),
+                                      ),
                                 const SizedBox(height: 15,),
                               ],
-                            ),),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -188,43 +198,6 @@ class _LoginState extends State<Login> {
         ),
       ),
     );
-  }
-
-  void registerUser() async {
-    try{
-      var url = "https://crm.flewac.com/ANDROID/Tech/V1/Login/";
-      var data = {"username": _userName.text,"password": _password.text};
-      var body = json.encode(data);
-      var urlParse = Uri.parse(url);
-      Response response = await http.post(
-        urlParse,
-        body: {
-          "type":"LOGIN",
-          "data":body
-        },
-      );
-      var dataa = jsonDecode(response.body);
-       print(body);
-       print(dataa);
-
-      if(dataa["status"] == "success"){
-        final SharedPreferences sp = await SharedPreferences.getInstance();
-        sp.setString('accessToken',dataa["accessToken"]);
-        sp.setString('is_def',dataa["is_def"]);
-        sp.setString('name',dataa["name"].toString());
-        sp.setString('mobile',dataa["mobile"].toString());
-
-        if(int.parse(dataa["is_def"]) == 1){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPassword(),),);
-        }else{
-          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const Jobs()),(route) => false);
-        }
-      }else{
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["msg"])));
-      }
-    } catch(e) {
-      // print('$e');
-    }
   }
 
   logoWidget(String s) {

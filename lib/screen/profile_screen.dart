@@ -1,11 +1,9 @@
 // ignore_for_file: unused_local_variable, non_constant_identifier_names, deprecated_member_use, no_leading_underscores_for_local_identifiers, use_build_context_synchronously, avoid_print
-
-import 'dart:convert';
+import 'package:flewac_technician/provider/resetpassword_provider.dart';
+import 'package:flewac_technician/provider/resetpin_provider..dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
 import 'package:pinput/pinput.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import '../Drawer/app_drawer.dart';
 
 class Profile extends StatefulWidget {
@@ -49,6 +47,8 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget _buildChangePassword(BuildContext context) {
+    final provider = Provider.of<ResetPasswordProvider>(context);
+
    return Center(
      child: Container(
         // height:  500.0,
@@ -152,7 +152,12 @@ class _ProfileState extends State<Profile> {
                         style: TextStyle(fontSize: 20, color: Colors.white),),
                       onPressed: () {
                         if(formfiled.currentState!.validate()) {
-                          resetPass();
+                          provider.resetPass(
+                              Oldpassword.text.toString(),
+                              newpassword.text.toString(),
+                              confirmpassword.text.toString(),
+                              context,
+                          );
                             confirmpassword.clear();
                         }
                       },
@@ -168,7 +173,7 @@ class _ProfileState extends State<Profile> {
  }
 
   Widget _buildChangePin() {
-
+   final provider = Provider.of<ResetPinProvider>(context);
    final defaultPinTheme = PinTheme(
        width: 56,
        height: 60,
@@ -306,8 +311,15 @@ class _ProfileState extends State<Profile> {
                        style: TextStyle(fontSize: 20, color: Colors.white),),
                      onPressed: () {
                        if(_formfiled.currentState!.validate()) {
-                         resetPin();
-                         setState(() {});
+                         setState(() {
+                           provider.resetPin(
+                               _Oldpin.text.toString(),
+                               _newpin.text.toString(),
+                               _confirmpin.text.toString(),
+                               context,
+                           );
+                         },
+                        );
                        }
                      },
                    ),
@@ -318,64 +330,7 @@ class _ProfileState extends State<Profile> {
            ),
          ),
        ),
-   ),); 
-       }
-
-  void resetPass() async {
-    var url = "https://crm.flewac.com/ANDROID/Tech/V1/Profile/";
-    var sharedPref = await SharedPreferences.getInstance();
-    var data = {"accessToken": sharedPref.getString('accessToken'),"old": Oldpassword.text.toString(),"new": newpassword.text.toString()};
-    var body = json.encode(data);
-    var urlParse = Uri.parse(url);
-    Response response = await http.post(
-      urlParse,
-      body: {
-        "type":"CHANGEPASS",
-        "data":body
-      },
-    );
-    var dataa = jsonDecode(response.body);
-    print(body);
-    print(dataa);
-
-    if(dataa["status"] == "success"){
-      sharedPref.getString('is_def');
-      setState(() {
-        Oldpassword.clear();
-        newpassword.clear();
-        confirmpassword.clear();
-      });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["status"])));
-    }else{
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["msg"])));
-    }
-  }
-
-  void resetPin() async {
-    var url = "https://crm.flewac.com/ANDROID/Tech/V1/Profile/";
-    var sharedPref = await SharedPreferences.getInstance();
-    var data = {"accessToken": sharedPref.getString('accessToken'),"old": _Oldpin.text.toString(),"new": _newpin.text.toString()};
-    var body = json.encode(data);
-    var urlParse = Uri.parse(url);
-    Response response = await http.post(
-      urlParse,
-      body: {
-        "type":"CHANGEMPIN",
-        "data":body
-      },
-    );
-    var dataa = jsonDecode(response.body);
-    print(body);
-    print(dataa);
-
-    if(dataa["status"] == "success"){
-      sharedPref.getString('is_def');
-      _Oldpin.clear();
-      _newpin.clear();
-      _confirmpin.clear();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["status"])));
-    }else{
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["msg"])));
-    }
+     ),
+   );
   }
 }

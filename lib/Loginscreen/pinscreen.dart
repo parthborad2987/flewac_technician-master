@@ -1,9 +1,11 @@
 // ignore_for_file: deprecated_member_use, non_constant_identifier_names, prefer_const_constructors, avoid_unnecessary_containers, sized_box_for_whitespace, use_build_context_synchronously, avoid_print, unrelated_type_equality_checks
 import 'dart:convert';
+import 'package:flewac_technician/provider/pin_provider..dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:pinput/pinput.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screen/job_screen.dart';
 import 'login_screen.dart';
@@ -17,7 +19,7 @@ class PinScreen extends StatefulWidget {
 }
 
 class _PinScreenState extends State<PinScreen> {
-  bool isLoading = false;
+  var isLoading = false;
   final _formfiled = GlobalKey<FormState>();
   final TextEditingController _pinOne = TextEditingController();
 
@@ -44,6 +46,7 @@ class _PinScreenState extends State<PinScreen> {
           ],
         )
     );
+    final provider = Provider.of<PinProvider>(context);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -67,18 +70,12 @@ class _PinScreenState extends State<PinScreen> {
                     ),
                   ),
                   Container(
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.6,
+                    height: MediaQuery.of(context).size.height * 0.6,
                     child: SingleChildScrollView(
                       child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: Container(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width,
+                        width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(40),
                           color: Colors.white,
@@ -138,19 +135,26 @@ class _PinScreenState extends State<PinScreen> {
                                   ),
                                   child: Container(
                                     child: TextButton(
-                                        child: isLoading ? const Row(mainAxisAlignment: MainAxisAlignment.center,
+                                        child: isLoading
+                                          ? const Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             CircularProgressIndicator(color: Colors.white,),
                                             SizedBox(width: 24,),
                                             Text('Please Wait...',style: TextStyle(color: Colors.white)),
-                                          ],) : Text('Sign in',
-                                          style: TextStyle(fontSize: 20,
-                                              color: Colors.white),),
+                                          ],)
+                                          : Text('Sign in', style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white),
+                                        ),
                                         onPressed: () async {
                                           if(isLoading) return;
-                                          isLoading = true;
                                           if (_formfiled.currentState!.validate()) {
-                                            registerPin();
+                                            setState(() => isLoading = true);
+                                            provider.registerPin(
+                                                context,
+                                                _pinOne.text.toString(),
+                                            );
                                             print('pin');
                                           }
                                         }),),
@@ -159,10 +163,11 @@ class _PinScreenState extends State<PinScreen> {
                                 TextButton(
                                     child: const Text('Back',
                                       style: TextStyle(
-                                          fontSize: 20, color: Colors.black),),
+                                        fontSize: 20,
+                                          color: Colors.black),),
                                     onPressed: () async {
-                                      final SharedPreferences sharedPref = await SharedPreferences
-                                          .getInstance();
+                                      final SharedPreferences sharedPref
+                                      = await SharedPreferences.getInstance();
                                       sharedPref.remove('accessToken');
                                       sharedPref.remove('is_def');
                                       print('accessToken');
@@ -211,39 +216,5 @@ class _PinScreenState extends State<PinScreen> {
           .size
           .width * 0.7,
     );
-  }
-
-  void registerPin() async {
-    var url = "https://crm.flewac.com/ANDROID/Tech/V1/Login/";
-    var sharedPref = await SharedPreferences.getInstance();
-    var data = {
-      "accessToken": sharedPref.getString('accessToken'),
-      "mpin": _pinOne.text.toString()
-    };
-    var body = json.encode(data);
-    var urlParse = Uri.parse(url);
-    Response response = await http.post(
-      urlParse,
-      body: {
-        "type": "MPIN",
-        "data": body
-      },
-    );
-    var dataa = jsonDecode(response.body);
-    print(body);
-    print(dataa);
-
-    if (dataa["status"] == "success") {
-     sharedPref.setString('accessToken',dataa["accessToken"]);
-     var is_def = sharedPref.getString('is_def');
-      if(is_def == 1){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPassword(),),);
-      }else{
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const Jobs()),(route) => false);
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(dataa["msg"])));
-    }
   }
 }

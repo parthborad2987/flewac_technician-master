@@ -1,10 +1,12 @@
 // ignore_for_file: deprecated_member_use, no_leading_underscores_for_local_identifiers, unused_local_variable, non_constant_identifier_names, use_build_context_synchronously, avoid_print
 import 'dart:convert';
 
+import 'package:flewac_technician/provider/resetpinpassword_provider..dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:pinput/pinput.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screen/job_screen.dart';
 
@@ -24,6 +26,8 @@ class _ResetPasswordState extends State<ResetPassword> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ResetPinPasswordProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color.fromRGBO(0, 152, 218, 15),
       body: Padding(
@@ -62,7 +66,11 @@ class _ResetPasswordState extends State<ResetPassword> {
                       style: TextStyle(fontSize: 20, color: Colors.white),),
                     onPressed: () {
                       if(formfiled.currentState!.validate()) {
-                        resetPasswordPin();
+                        provider.resetPasswordPin(
+                            newpassword,
+                            _pinOne.text.toString(),
+                            context,
+                        );
                       }
                     },
                   ),
@@ -205,31 +213,6 @@ class _ResetPasswordState extends State<ResetPassword> {
             ),
       ),
     );
-  }
-
-  void resetPasswordPin() async {
-    var url = "https://crm.flewac.com/ANDROID/Tech/V1/Login/";
-    var sharedPref = await SharedPreferences.getInstance();
-    var data = {"accessToken": sharedPref.getString('accessToken'),"password": newpassword.text.toString(),"mpin": _pinOne.text.toString()};
-    var body = json.encode(data);
-    var urlParse = Uri.parse(url);
-    Response response = await http.post(
-      urlParse,
-      body: {
-        "type":"RESET",
-        "data":body
-      },
-    );
-    var dataa = jsonDecode(response.body);
-    print(body);
-    print(dataa);
-
-    if(dataa["status"] == "success"){
-      sharedPref.getString('is_def');
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const Jobs(),),);
-    }else{
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["msg"])));
-    }
   }
 
   logoWidget(String s) {

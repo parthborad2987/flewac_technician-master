@@ -58,7 +58,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ),
       body: Stack(
         children: [
-          Padding(padding: const EdgeInsets.only(top: 15,right: 10,left: 10,),
+          Padding(padding: const EdgeInsets.only(top: 5,right: 10,left: 10,),
           child: Container(
             height: 50,
             decoration: BoxDecoration(
@@ -73,27 +73,26 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               icon: const Icon(Icons.arrow_drop_down,color: Colors.black,),
               items: List.generate(
                 12,
-                    (index) => DropdownMenuItem(
+                (index) => DropdownMenuItem(
                 value: index + 1,
                 child: Text("  Month : ${index + 1}"),
                ),
               ),
               onChanged: (value) {
                 attendance.clear();
-
                 setState(() {
                   selectedMonth = value!;
                 });
               },
-                onTap: () {
-                  attendance.clear();
-                },
+              onTap: () {
+                attendance.clear();
+              },
             ),
           ),),),
 
           Container(
-                height: MediaQuery.of(context).size.height * 0.79,
-                padding: const EdgeInsets.only(top: 70,right: 10, left: 10,bottom: 5),
+                height: MediaQuery.of(context).size.height * 0.8,
+                padding: const EdgeInsets.symmetric(vertical: 55,horizontal: 10,),
                 child : FutureBuilder(
                   future: _MYATTENDANCE(selectedMonth),
                   builder: (context, snapshot) {
@@ -268,7 +267,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 12),
+                    horizontal: 10, vertical: 5),
                 child: FutureBuilder(
                  future: getAttendance,
                    builder: (context, snapshot) {
