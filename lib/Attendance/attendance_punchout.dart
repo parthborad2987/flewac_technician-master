@@ -33,7 +33,7 @@ class _AttendancePunchOutState extends State<AttendancePunchOut> {
   void initState() {
     super.initState();
     _getImageBase64();
-    // _distances();
+    _distances();
   }
 
   @override

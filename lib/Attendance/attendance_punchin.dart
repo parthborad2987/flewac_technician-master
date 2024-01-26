@@ -23,28 +23,18 @@ class AttendancePunchIn extends StatefulWidget {
 }
 
 class _AttendancePunchInState extends State<AttendancePunchIn> {
+  var status;
   var distance = 0.00;
-  static const LatLng _pGooglemap = LatLng(23.0417981, 72.6784746);
+  var _imageBase64;
   double lat11 = 23.0417981;
   double lon11 = 72.6784746;
-  var _imageBase64;
-  var status;
+  static const LatLng _pGooglemap = LatLng(23.0417981, 72.6784746);
 
   @override
   void initState() {
     super.initState();
-   _Punchin();
-  }
-
-  _Punchin() {
-    _getImageBase64();
     _distances();
-  }
-
-  @override
-  void dispose() {
-    distance.toDouble();
-    super.dispose();
+    _getImageBase64();
   }
 
   void _distances() async {
@@ -59,6 +49,12 @@ class _AttendancePunchInState extends State<AttendancePunchIn> {
   @override
   degreesToRadians(degrees) {
     return degrees * Math.pi / 180;
+  }
+
+  @override
+  void dispose() {
+    distance.toDouble();
+    super.dispose();
   }
 
   num distanceInKmBetweenEarthCoordinates(lat1,lon1,lat2,lon2) {
@@ -78,7 +74,6 @@ class _AttendancePunchInState extends State<AttendancePunchIn> {
   Widget build(BuildContext context) {
     final LatLng pGooglemapsource = LatLng(widget.position.latitude, widget.position.longitude);
 
-
     return  Scaffold(
       // drawer: const AppDrawer(),
         appBar: AppBar(
@@ -93,21 +88,20 @@ class _AttendancePunchInState extends State<AttendancePunchIn> {
         ),
         body:Stack(
           children: [
-            Container(
-              child: GoogleMap(
-                initialCameraPosition: const CameraPosition(
-                    target: _pGooglemap,
-                    zoom: 15),
-                markers: {
-                  const Marker(markerId: MarkerId("_currentLocation"),
-                      icon: BitmapDescriptor.defaultMarker,
-                      position: _pGooglemap),
-                  Marker(markerId: const MarkerId("_currentLocation"),
-                      icon: BitmapDescriptor.defaultMarker,
-                      position: pGooglemapsource),
-                },),),
-            Responsive.isMobile(context) ?
-            Positioned(
+        Container(
+          child: GoogleMap(
+            initialCameraPosition: const CameraPosition(
+                target: _pGooglemap,
+                zoom: 15),
+            markers: {
+              const Marker(markerId: MarkerId("_currentLocation"),
+                  icon: BitmapDescriptor.defaultMarker,
+                  position: _pGooglemap),
+              Marker(markerId: const MarkerId("_currentLocation"),
+                  icon: BitmapDescriptor.defaultMarker,
+                  position: pGooglemapsource),
+            },),),
+            Responsive.isMobile(context) ? Positioned(
               bottom: MediaQuery.of(context).size.height * 0.02,
               right: MediaQuery.of(context).size.width * 0.25,
               child: Container(
@@ -120,8 +114,7 @@ class _AttendancePunchInState extends State<AttendancePunchIn> {
                   },
                   style: ElevatedButton.styleFrom(primary: Colors.transparent,), child: const Text('Submit',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 25),),
                 ),),) : Container(),
-            Responsive.isTablet(context) ?
-            Positioned(
+            Responsive.isTablet(context) ? Positioned(
               bottom: MediaQuery.of(context).size.height * 0.02,
               right: MediaQuery.of(context).size.width * 0.39,
               child: Container(

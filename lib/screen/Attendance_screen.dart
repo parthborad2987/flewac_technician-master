@@ -24,37 +24,20 @@ class AttendanceScreen extends StatefulWidget {
 class _AttendanceScreenState extends State<AttendanceScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   var dataa;
-  String value = 'January';
-  int currentmonth = 1;
+  int selectedMonth = 1;
   var getAttendance;
   List<Attendance> attendance = [];
   List<ToDayAttendance> todayattendance = [];
-  List<String> month = [
-    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",
-  ];
 
   @override
   void initState() {
     super.initState();
-    setupCurrentMonth();
-    bindMonth();
-    bindData();
-  }
-
-  // Function to set current month
-  void setupCurrentMonth() {
-    // Get current month logic (1-based index)
-    currentmonth = DateTime.now().month;
-  }
-
-  // Function to bind month
-  void bindMonth() {
-    // Bind month logic
+     bindData();
   }
 
   void bindData() {
-    // Bind data logic
-    getAttendance = _MYATTENDANCE();
+  //Bind data logic
+    getAttendance = _MYATTENDANCE(selectedMonth);
   }
 
   Future<void> _refreshJob() async{
@@ -83,41 +66,27 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               border: Border.all(color: Colors.black,width: 4),
             ),
             child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-              value: value,
+              child: DropdownButton<int>(
+              value: selectedMonth,
               isExpanded: true,
               iconSize: 36,
               icon: const Icon(Icons.arrow_drop_down,color: Colors.black,),
-              items: month.map(buildMenuItem).toList(),
+              items: List.generate(
+                12,
+                    (index) => DropdownMenuItem(
+                value: index + 1,
+                child: Text("  Month : ${index + 1}"),
+               ),
+              ),
               onChanged: (value) {
-                this.value = value!;
+                attendance.clear();
 
-                if(this.value == "February") {
-                  currentmonth = 2;
-                }else if(this.value == "March") {
-                  currentmonth = 3;
-                }else if(this.value == "April") {
-                  currentmonth = 4;
-                }else if(this.value == "May") {
-                  currentmonth = 5;
-                }else if(this.value == "June") {
-                  currentmonth = 6;
-                } else if(this.value == "July") {
-                  currentmonth = 7;
-                } else if(this.value == "August") {
-                  currentmonth = 8;
-                } else if(this.value == "September") {
-                  currentmonth = 9;
-                } else if(this.value == "October") {
-                  currentmonth = 10;
-                } else if(this.value == "November") {
-                  currentmonth = 11;
-                } else if(this.value == "December") {
-                  currentmonth = 12;
-                } else {
-                  currentmonth = 1;
-                }
-                  _MYATTENDANCE();
+                setState(() {
+                  selectedMonth = value!;
+                });
+              },
+                onTap: () {
+                  attendance.clear();
                 },
             ),
           ),),),
@@ -126,7 +95,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 height: MediaQuery.of(context).size.height * 0.79,
                 padding: const EdgeInsets.only(top: 70,right: 10, left: 10,bottom: 5),
                 child : FutureBuilder(
-                  future: getAttendance,
+                  future: _MYATTENDANCE(selectedMonth),
                   builder: (context, snapshot) {
                     if(snapshot.hasData) {
                       return RefreshIndicator(
@@ -284,7 +253,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                              );
                            }
                            return null;
-                        },
+                         },
                         ),
                       );
                     } else {
@@ -537,13 +506,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
   }
 
- Future _MYATTENDANCE() async {
+ Future _MYATTENDANCE(int Month) async {
     var sharedPref = await SharedPreferences.getInstance();
     var url = "https://crm.flewac.com/ANDROID/Tech/V1/Attendance/";
     var data = {
       "accessToken": sharedPref.getString('accessToken'),
-      "month":currentmonth,
-    };print(currentmonth);
+      "month":selectedMonth,
+    };print(selectedMonth);
     var body = json.encode(data);
     var urlParse = Uri.parse(url);
     Response response = await http.post(

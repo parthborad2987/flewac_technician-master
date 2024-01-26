@@ -22,11 +22,6 @@ class _PinScreenState extends State<PinScreen> {
   final TextEditingController _pinOne = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final defaultPinTheme = PinTheme(
         width: 56,
@@ -54,14 +49,8 @@ class _PinScreenState extends State<PinScreen> {
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
         child: Container(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height,
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
           color: const Color.fromRGBO(0, 152, 218, 15),
           child: Center(
             child: SingleChildScrollView(
@@ -82,7 +71,8 @@ class _PinScreenState extends State<PinScreen> {
                         .of(context)
                         .size
                         .height * 0.6,
-                    child: SingleChildScrollView(child: Padding(
+                    child: SingleChildScrollView(
+                      child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: Container(
                         width: MediaQuery
@@ -97,8 +87,7 @@ class _PinScreenState extends State<PinScreen> {
                               color: Colors.grey.withOpacity(0.8),
                               spreadRadius: 2,
                               blurRadius: 5,
-                              offset: const Offset(
-                                  0, 3), // changes position of shadow
+                              offset: const Offset(0, 3), // changes position of shadow
                             ),
                           ],
                         ),
@@ -116,8 +105,7 @@ class _PinScreenState extends State<PinScreen> {
                                 ),
                                 const SizedBox(height: 20),
                                 Pinput(
-                                  mainAxisAlignment: MainAxisAlignment
-                                      .spaceAround,
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   length: 4,
                                   defaultPinTheme: defaultPinTheme,
                                   focusedPinTheme: defaultPinTheme.copyWith(
@@ -133,10 +121,7 @@ class _PinScreenState extends State<PinScreen> {
                                 const SizedBox(height: 25,),
                                 Container(
                                   height: 60,
-                                  width: MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width,
+                                  width: MediaQuery.of(context).size.width,
                                   decoration: BoxDecoration(boxShadow: [
                                     BoxShadow(
                                       color: Colors.grey.withOpacity(0.5),
@@ -163,12 +148,8 @@ class _PinScreenState extends State<PinScreen> {
                                               color: Colors.white),),
                                         onPressed: () async {
                                           if(isLoading) return;
-                                          setState(() => isLoading = true);
-                                          if (_formfiled.currentState!
-                                              .validate()) {
-                                            setState(() {
-
-                                            });
+                                          isLoading = true;
+                                          if (_formfiled.currentState!.validate()) {
                                             registerPin();
                                             print('pin');
                                           }

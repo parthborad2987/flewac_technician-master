@@ -81,7 +81,7 @@ class _AttendancePunchInSelfyState extends State<AttendancePunchInSelfy> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Container(width: MediaQuery.of(context).size.height * 0.9,child: CameraPreview(_controller),);
+            return SizedBox(width: MediaQuery.of(context).size.height * 0.9,child: CameraPreview(_controller),);
           } else {
             return const Center(child: CircularProgressIndicator());
           }

@@ -32,4 +32,5 @@ class Attendance{
         'punchin': jsonEncode(punchin),
         'punchout': jsonEncode(punchout),
       };
+
 }

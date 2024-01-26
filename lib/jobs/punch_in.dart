@@ -1,9 +1,7 @@
-// ignore_for_file: non_constant_identifier_names, avoid_print, unused_local_variable, prefer_interpolation_to_compose_strings, unnecessary_null_comparison, prefer_typing_uninitialized_variables
+// ignore_for_file: non_constant_identifier_names, avoid_print, unused_local_variable, prefer_interpolation_to_compose_strings, unnecessary_null_comparison, prefer_typing_uninitialized_variables, sized_box_for_whitespace
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'display_camera.dart';
 
@@ -16,9 +14,9 @@ class PunchIn extends StatefulWidget {
 }
 
 class _PunchInState extends State<PunchIn> {
+  Position? currentPosition;
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
-  Position? currentPosition;
 
   @override
   void initState() {
@@ -71,7 +69,9 @@ class _PunchInState extends State<PunchIn> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black45,
-        title: const Text('Take a picture',style: TextStyle(color: Colors.white),),
+        title: const Text('Take a picture',
+          style: TextStyle(color: Colors.white),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.of(context).pop(),
@@ -82,7 +82,11 @@ class _PunchInState extends State<PunchIn> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Container(height: MediaQuery.of(context).size.height * 0.99,width: MediaQuery.of(context).size.width * 0.99,child: CameraPreview(_controller),);
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.99,
+              width: MediaQuery.of(context).size.width * 0.99,
+              child: CameraPreview(_controller),
+            );
           } else {
             return const Center(child: CircularProgressIndicator());
           }
@@ -95,7 +99,7 @@ class _PunchInState extends State<PunchIn> {
         child: FloatingActionButton(
           backgroundColor: Colors.white,
         onPressed: () async {
-            _determinePosition();
+         _determinePosition();
           try {
             await _initializeControllerFuture;
             XFile image = await _controller.takePicture();
@@ -103,7 +107,9 @@ class _PunchInState extends State<PunchIn> {
             await Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => DisplayPictureScreen(
-                  imagePath: image.path, latitude: '${currentPosition?.latitude.toString()}', longitude: '${currentPosition?.longitude.toString()}',
+                  imagePath: image.path,
+                  latitude: '${currentPosition?.latitude.toString()}',
+                  longitude: '${currentPosition?.longitude.toString()}',
                 ),
               ),
             );
