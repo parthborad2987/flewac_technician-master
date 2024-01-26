@@ -24,7 +24,7 @@ class AttendanceScreen extends StatefulWidget {
 class _AttendanceScreenState extends State<AttendanceScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   var dataa;
-  int selectedMonth = 1;
+  int selectedMonth = DateTime.now().month;
   var getAttendance;
   List<Attendance> attendance = [];
   List<ToDayAttendance> todayattendance = [];
