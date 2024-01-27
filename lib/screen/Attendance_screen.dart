@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously, non_constant_identifier_names, dead_code, unnecessary_null_comparison, prefer_typing_uninitialized_variables, avoid_print, unnecessary_string_interpolations, unused_local_variable, depend_on_referenced_packages
-
 import 'dart:convert';
 import 'package:flewac_technician/Drawer/responsive.dart';
 import 'package:flewac_technician/model/todayattendance_model.dart';
@@ -24,8 +23,8 @@ class AttendanceScreen extends StatefulWidget {
 class _AttendanceScreenState extends State<AttendanceScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   var dataa;
-  int selectedMonth = DateTime.now().month;
   var getAttendance;
+  int selectedMonth = DateTime.now().month;
   List<Attendance> attendance = [];
   List<ToDayAttendance> todayattendance = [];
 
@@ -38,12 +37,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   void bindData() {
   //Bind data logic
     getAttendance = _MYATTENDANCE(selectedMonth);
-  }
-
-  Future<void> _refreshJob() async{
-    setState(() {
-      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => const AttendanceScreen()));
-    });
   }
 
   @override
@@ -97,11 +90,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   future: _MYATTENDANCE(selectedMonth),
                   builder: (context, snapshot) {
                     if(snapshot.hasData) {
-                      return RefreshIndicator(
-                           onRefresh:  () {
-                             return _refreshJob();
-                           },
-                          child: ListView.builder(
+                      return ListView.builder(
                         itemCount: attendance.length,
                         itemBuilder: (context, index) {
                            if(Responsive.isMobile(context)) {
@@ -253,7 +242,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                            }
                            return null;
                          },
-                        ),
                       );
                     } else {
                       return const Center(child: CircularProgressIndicator(),);
@@ -545,10 +533,4 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dataa["msg"])));
     }
   }
-
- DropdownMenuItem<String> buildMenuItem(String item) =>
-    DropdownMenuItem(
-      value: item,
-      child: Text(item,style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-    );
 }
